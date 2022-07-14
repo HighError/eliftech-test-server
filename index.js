@@ -10,7 +10,7 @@ app.use(cors());
 dotenv.config();
 const client = new mongodb.MongoClient(process.env.MONGO);
 
-app.get("/shop", async (req, res) => {
+app.get("/shops", async (req, res) => {
   res.writeHead(200);
   res.end(JSON.stringify(await getShops()));
 });
