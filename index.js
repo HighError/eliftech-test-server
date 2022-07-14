@@ -2,7 +2,10 @@ const express = require("express");
 const mongodb = require("mongodb");
 const dotenv = require("dotenv");
 const url = require("url");
+const cors = require("cors");
 const app = express();
+
+app.use(cors());
 
 dotenv.config();
 const client = new mongodb.MongoClient(process.env.MONGO);
