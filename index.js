@@ -1,7 +1,3 @@
-// import { createServer } from "http";
-// import { MongoClient, ObjectId } from "mongodb";
-// import url from "url";
-// import dotenv from "dotenv";
 const express = require("express");
 const mongodb = require("mongodb");
 const dotenv = require("dotenv");
