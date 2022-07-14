@@ -1,0 +1,16 @@
+{
+  "name": "eliftech_back",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "HighError",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "http": "^0.0.1-security",
+    "mongodb": "^4.7.0"
+  },
+  "scripts": {
+    "start": "node ./index.js"
+  }
+}
