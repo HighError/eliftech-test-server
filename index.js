@@ -1,59 +1,49 @@
-import { createServer } from "http";
-import { MongoClient, ObjectId } from "mongodb";
-import url from "url";
-import dotenv from "dotenv";
+// import { createServer } from "http";
+// import { MongoClient, ObjectId } from "mongodb";
+// import url from "url";
+// import dotenv from "dotenv";
+const express = require("express");
+const mongodb = require("mongodb");
+const dotenv = require("dotenv");
+const url = require("url");
+const app = express();
 
 dotenv.config();
-const client = new MongoClient(process.env.MONGO);
+const client = new mongodb.MongoClient(process.env.MONGO);
 
-const host = "localhost";
-const port = 8000;
-
-const requestListener = async function (req, res) {
-  res.setHeader("Content-Type", "application/json");
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  let link = url.parse(req.url, true);
-  switch (link.pathname) {
-    case "/shops":
-      res.writeHead(200);
-      res.end(JSON.stringify(await getShops()));
-      break;
-    case "/shopitem":
-      res.writeHead(200);
-      if (link.query["shop"] != null) {
-        res.end(
-          JSON.stringify(await getShopItemsByShop(link.query["shop"] ?? ""))
-        );
-        break;
-      }
-      res.end(JSON.stringify(await getItemById(link.query["id"] ?? "")));
-      break;
-    case "/order":
-      if (req.method === "POST") {
-        let body = "";
-        req.on("data", (chunk) => {
-          body += chunk;
-        });
-        req.on("end", async function () {
-          await createOrder(JSON.parse(body));
-          res.end();
-        });
-        break;
-      }
-      res.writeHead(404);
-      res.end(JSON.stringify({ error: "Resource not found" }));
-      break;
-    default:
-      res.writeHead(404);
-      res.end(JSON.stringify({ error: "Resource not found" }));
-      break;
-  }
-};
-
-const server = createServer(requestListener);
-server.listen(port, host, () => {
-  console.log(`Server is running on http://${host}:${port}`);
+app.get("/shop", async (req, res) => {
+  res.writeHead(200);
+  res.end(JSON.stringify(await getShops()));
 });
+
+app.get("/shopitem", async (req, res) => {
+  const link = url.parse(req.url, true);
+  if (link.query["shop"] != null) {
+    res.writeHead(200);
+    res.end(JSON.stringify(await getShopItemsByShop(link.query["shop"] ?? "")));
+    return;
+  } else if (link.query["id"] != null) {
+    res.writeHead(200);
+    res.end(JSON.stringify(await getItemById(link.query["id"] ?? "")));
+    return;
+  }
+  res.writeHead(400);
+  res.end("");
+});
+
+app.post("/order", async (req, res) => {
+  res.writeHead(200);
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk;
+  });
+  req.on("end", async function () {
+    await createOrder(JSON.parse(body));
+    res.end();
+  });
+});
+
+app.listen(80, () => console.log("Server is running"));
 
 async function getShops() {
   const database = client.db("eliftech");
@@ -73,7 +63,7 @@ async function getItemById(id) {
   const database = client.db("eliftech");
   const collection = database.collection("shop_items");
   const item = await collection.findOne({
-    _id: ObjectId(id) ?? "",
+    _id: mongodb.ObjectId(id) ?? "",
   });
   return item;
 }
